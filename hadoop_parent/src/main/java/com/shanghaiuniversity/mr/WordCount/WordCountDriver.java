@@ -69,7 +69,7 @@ public class WordCountDriver {
         FileOutputFormat.setCompressOutput(job, true);
 
         // 设置压缩的方式
-//		FileOutputFormat.setOutputCompressorClass(job, BZip2Codec.class);
+        //FileOutputFormat.setOutputCompressorClass(job, BZip2Codec.class);
         FileOutputFormat.setOutputCompressorClass(job, GzipCodec.class);
 
         // 6 设置输入路径和输出路径
