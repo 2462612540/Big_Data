@@ -35,29 +35,46 @@ import java.io.IOException;
  * null nullwriteable
  */
 public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
-    /**
-     * 这里是mapper 就是的具体的业务逻辑的实现方法 该方式的是的调用的是取决于读取的数的组件的有没有给mr传入数据
-     * 如果是有话， 每一个传入《k,v》 该方法就会调用的是
-     *
-     * @param key
-     * @param value
-     * @param context
-     * @throws IOException
-     * @throws InterruptedException
-     */
-    @Override
-    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-        //拿到传入一行的内容 把数据的类型的转化为string
-        String line = value.toString();
-        //将一行的内容的按照分割符号进行一行的内容进行切割 切割成为一个单词的数组
-        String[] words = line.split(" ");
+//    /**
+//     * 这里是mapper 就是的具体的业务逻辑的实现方法 该方式的是的调用的是取决于读取的数的组件的有没有给mr传入数据
+//     * 如果是有话， 每一个传入《k,v》 该方法就会调用的是
+//     *
+//     * @param key
+//     * @param value
+//     * @param context
+//     * @throws IOException
+//     * @throws InterruptedException
+//     */
+//    @Override
+//    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+//        //拿到传入一行的内容 把数据的类型的转化为string
+//        String line = value.toString();
+//        //将一行的内容的按照分割符号进行一行的内容进行切割 切割成为一个单词的数组
+//        String[] words = line.split(" ");
+//
+//        //遍历的数组 没出现一个单词就标记一个数字1 <单词 1>
+//        for (String word : words) {
+//            //使用mr的程序的上下文的context 把mapper阶段的处理的数据的发送出去
+//            //作为一个reduce节点的输入数据
+//            context.write(new Text(word), new IntWritable(1));
+//            // hadoop   hadoop  Spark ---<hadoop 1> <hadoop 1> <Spark 1>
+//        }
+//    }
 
-        //遍历的数组 没出现一个单词就标记一个数字1 <单词 1>
+    Text k = new Text();
+    IntWritable v = new IntWritable(1);
+
+    @Override
+    protected void map(LongWritable key, Text value, Context context)throws IOException, InterruptedException {
+        System.out.println(key.toString());
+        // 1 获取一行
+        String line = value.toString();
+        // 2 切割单词
+        String[] words = line.split(" ");
+        // 3 循环写出
         for (String word : words) {
-            //使用mr的程序的上下文的context 把mapper阶段的处理的数据的发送出去
-            //作为一个reduce节点的输入数据
-            context.write(new Text(word), new IntWritable(1));
-            // hadoop   hadoop  Spark ---<hadoop 1> <hadoop 1> <Spark 1>
+            k.set(word);
+            context.write(k, v);
         }
     }
 }
