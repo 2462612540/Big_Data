@@ -25,7 +25,7 @@ public class WordCountDriver {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 
-        args = new String[]{"e:/input/inputword", "e:/output6"};
+        args = new String[]{"input", "result"};
 
         Configuration conf = new Configuration();
         // 开启map端输出压缩

@@ -1,10 +1,10 @@
 package com.shanghaiuniversity.mr.flowsum;
 
+import org.apache.hadoop.io.Writable;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import org.apache.hadoop.io.Writable;
 
 public class FlowBean implements Writable {
 
@@ -27,7 +27,6 @@ public class FlowBean implements Writable {
 	// 序列化方法
 	@Override
 	public void write(DataOutput out) throws IOException {
-		
 		out.writeLong(upFlow);
 		out.writeLong(downFlow);
 		out.writeLong(sumFlow);
