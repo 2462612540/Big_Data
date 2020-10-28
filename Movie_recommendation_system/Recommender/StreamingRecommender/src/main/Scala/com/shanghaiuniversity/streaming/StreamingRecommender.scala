@@ -90,7 +90,6 @@ object StreamingRecommender {
         val attr = msg.value().split("\\|")
         (attr(0).toInt, attr(1).toInt, attr(2).toDouble, attr(3).toInt)
     }
-
     // 继续做流式处理，核心实时算法部分
     ratingStream.foreachRDD {
       rdds =>
@@ -112,13 +111,10 @@ object StreamingRecommender {
           }
         }
     }
-    // 开始接收和处理数据
+    // 开始接收和处理数*
     ssc.start()
-
     println(">>>>>>>>>>>>>>> streaming started!")
-
     ssc.awaitTermination()
-
   }
 
   // redis操作返回的是java类，为了用map操作需要引入转换类
