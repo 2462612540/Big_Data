@@ -6,7 +6,7 @@ import org.apache.kafka.streams.processor.ProcessorContext;
 /**
  * @ClassName: LogProcessor
  * @Description:
- * @Author: wushengran on 2019/4/4 10:49
+ * @Author: xjl on 2019/4/4 10:49
  * @Version: 1.0
  */
 public class LogProcessor implements Processor<byte[], byte[]>{
@@ -25,7 +25,6 @@ public class LogProcessor implements Processor<byte[], byte[]>{
         // 根据前缀MOVIE_RATING_PREFIX:从日志信息中提取评分数据
         if( input.contains("MOVIE_RATING_PREFIX:") ){
             System.out.println("movie rating data coming!>>>>>>>>>>>" + input);
-
             input = input.split("MOVIE_RATING_PREFIX:")[1].trim();
             context.forward( "logProcessor".getBytes(), input.getBytes() );
         }
@@ -38,6 +37,5 @@ public class LogProcessor implements Processor<byte[], byte[]>{
 
     @Override
     public void close() {
-
     }
 }

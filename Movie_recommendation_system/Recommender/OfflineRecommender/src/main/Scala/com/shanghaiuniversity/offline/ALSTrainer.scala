@@ -8,26 +8,28 @@ import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rat
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
-
+/**
+ * »ùÓÚµÄALSÄ£ĞÍµÄÆÀ¹ÀºÍ²ÎÊıµÄÑ¡Ôñ
+ */
 object ALSTrainer {
 
   def main(args: Array[String]): Unit = {
     val config = Map(
       "spark.cores" -> "local[*]",
-      "mongo.uri" -> "mongodb://localhost:27017/recommender",
+      "mongo.uri" -> "mongodb://192.168.25.131:27017/recommender",
       "mongo.db" -> "recommender"
     )
 
     val sparkConf = new SparkConf().setMaster(config("spark.cores")).setAppName("OfflineRecommender")
 
-    // åˆ›å»ºä¸€ä¸ªSparkSession
+    // ´´½¨Ò»¸öSparkSession
     val spark = SparkSession.builder().config(sparkConf).getOrCreate()
 
     import spark.implicits._
 
     implicit val mongoConfig = MongoConfig(config("mongo.uri"), config("mongo.db"))
 
-    // åŠ è½½è¯„åˆ†æ•°æ®
+    // ¼ÓÔØÆÀ·ÖÊı¾İ
     val ratingRDD = spark.read
       .option("uri", mongoConfig.uri)
       .option("collection", MONGODB_RATING_COLLECTION)
@@ -35,15 +37,15 @@ object ALSTrainer {
       .load()
       .as[MovieRating]
       .rdd
-      .map(rating => Rating(rating.uid, rating.mid, rating.score)) // è½¬åŒ–æˆrddï¼Œå¹¶ä¸”å»æ‰æ—¶é—´æˆ³
+      .map(rating => Rating(rating.uid, rating.mid, rating.score)) // ×ª»¯³Érdd£¬²¢ÇÒÈ¥µôÊ±¼ä´Á
       .cache()
 
-    // éšæœºåˆ‡åˆ†æ•°æ®é›†ï¼Œç”Ÿæˆè®­ç»ƒé›†å’Œæµ‹è¯•é›†
+    // Ëæ»úÇĞ·ÖÊı¾İ¼¯£¬Éú³ÉÑµÁ·¼¯ºÍ²âÊÔ¼¯
     val splits = ratingRDD.randomSplit(Array(0.8, 0.2))
     val trainingRDD = splits(0)
     val testRDD = splits(1)
 
-    // æ¨¡å‹å‚æ•°é€‰æ‹©ï¼Œè¾“å‡ºæœ€ä¼˜å‚æ•°
+    // Ä£ĞÍ²ÎÊıÑ¡Ôñ£¬Êä³ö×îÓÅ²ÎÊı
     adjustALSParam(trainingRDD, testRDD)
 
     spark.close()
@@ -53,23 +55,23 @@ object ALSTrainer {
     val result = for (rank <- Array(50, 100, 200, 300); lambda <- Array(0.01, 0.1, 1))
       yield {
         val model = ALS.train(trainData, rank, 5, lambda)
-        // è®¡ç®—å½“å‰å‚æ•°å¯¹åº”æ¨¡å‹çš„rmseï¼Œè¿”å›Double
+        // ¼ÆËãµ±Ç°²ÎÊı¶ÔÓ¦Ä£ĞÍµÄrmse£¬·µ»ØDouble
         val rmse = getRMSE(model, testData)
         (rank, lambda, rmse)
       }
-    // æ§åˆ¶å°æ‰“å°è¾“å‡ºæœ€ä¼˜å‚æ•°
+    // ¿ØÖÆÌ¨´òÓ¡Êä³ö×îÓÅ²ÎÊı
     println(result.minBy(_._3))
   }
 
   def getRMSE(model: MatrixFactorizationModel, data: RDD[Rating]): Double = {
-    // è®¡ç®—é¢„æµ‹è¯„åˆ†
+    // ¼ÆËãÔ¤²âÆÀ·Ö
     val userProducts = data.map(item => (item.user, item.product))
     val predictRating = model.predict(userProducts)
 
-    // ä»¥uidï¼Œmidä½œä¸ºå¤–é”®ï¼Œinner joinå®é™…è§‚æµ‹å€¼å’Œé¢„æµ‹å€¼
+    // ÒÔuid£¬mid×÷ÎªÍâ¼ü£¬inner joinÊµ¼Ê¹Û²âÖµºÍÔ¤²âÖµ
     val observed = data.map(item => ((item.user, item.product), item.rating))
     val predict = predictRating.map(item => ((item.user, item.product), item.rating))
-    // å†…è¿æ¥å¾—åˆ°(uid, mid),(actual, predict)
+    // ÄÚÁ¬½ÓµÃµ½(uid, mid),(actual, predict)
     sqrt(
       observed.join(predict).map {
         case ((uid, mid), (actual, pre)) =>

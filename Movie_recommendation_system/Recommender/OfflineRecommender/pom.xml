@@ -30,7 +30,6 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-mllib_2.11</artifactId>
         </dependency>
-
         <!-- 引入Scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>

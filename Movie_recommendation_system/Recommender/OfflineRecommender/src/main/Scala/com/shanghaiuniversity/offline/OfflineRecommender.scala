@@ -5,25 +5,26 @@ import org.apache.spark.mllib.recommendation.{ALS, Rating}
 import org.apache.spark.sql.SparkSession
 import org.jblas.DoubleMatrix
 
-// Âü∫‰∫éËØÑÂàÜÊï∞ÊçÆÁöÑLFMÔºåÂè™ÈúÄË¶ÅratingÊï∞ÊçÆ
-case class MovieRating(uid: Int, mid: Int, score: Double, timestamp: Int )
+// ª˘”⁄∆¿∑÷ ˝æ›µƒLFM£¨÷ª–Ë“™rating ˝æ›
+case class MovieRating(uid: Int, mid: Int, score: Double, timestamp: Int)
 
-case class MongoConfig(uri:String, db:String)
+// ∂®“Â“ª∏ˆª˘◊ºÕ∆ºˆ∂‘œÛ
+case class Recommendation(mid: Int, score: Double)
 
-// ÂÆö‰πâ‰∏Ä‰∏™Âü∫ÂáÜÊé®ËçêÂØπË±°
-case class Recommendation( mid: Int, score: Double )
+// ∂®“Âª˘”⁄‘§≤‚∆¿∑÷µƒ”√ªßÕ∆ºˆ¡–±Ì
+case class UserRecs(uid: Int, recs: Seq[Recommendation])
 
-// ÂÆö‰πâÂü∫‰∫éÈ¢ÑÊµãËØÑÂàÜÁöÑÁî®Êà∑Êé®ËçêÂàóË°®
-case class UserRecs( uid: Int, recs: Seq[Recommendation] )
+// ∂®“Âª˘”⁄LFMµÁ”∞Ãÿ’˜œÚ¡øµƒµÁ”∞œ‡À∆∂»¡–±Ì
+case class MovieRecs(mid: Int, recs: Seq[Recommendation])
 
-// ÂÆö‰πâÂü∫‰∫éLFMÁîµÂΩ±ÁâπÂæÅÂêëÈáèÁöÑÁîµÂΩ±Áõ∏‰ººÂ∫¶ÂàóË°®
-case class MovieRecs( mid: Int, recs: Seq[Recommendation] )
+//MongoDBµƒ¡¨Ω”µƒ≈‰÷√
+case class MongoConfig(uri: String, db: String)
 
 object OfflineRecommender {
 
-  // ÂÆö‰πâË°®ÂêçÂíåÂ∏∏Èáè
+  // ∂®“Â±Ì√˚∫Õ≥£¡ø  ∂¡»°±Ì
   val MONGODB_RATING_COLLECTION = "Rating"
-
+  //…˙≥…µƒ±Ì ˝æ›
   val USER_RECS = "UserRecs"
   val MOVIE_RECS = "MovieRecs"
 
@@ -32,21 +33,20 @@ object OfflineRecommender {
   def main(args: Array[String]): Unit = {
     val config = Map(
       "spark.cores" -> "local[*]",
-      "mongo.uri" -> "mongodb://localhost:27017/recommender",
+      "mongo.uri" -> "mongodb://192.168.25.131:27017/recommender",
       "mongo.db" -> "recommender"
     )
 
     val sparkConf = new SparkConf().setMaster(config("spark.cores")).setAppName("OfflineRecommender")
 
-    // ÂàõÂª∫‰∏Ä‰∏™SparkSession
+    // ¥¥Ω®“ª∏ˆSparkSession
     val spark = SparkSession.builder().config(sparkConf).getOrCreate()
 
     import spark.implicits._
 
     implicit val mongoConfig = MongoConfig(config("mongo.uri"), config("mongo.db"))
 
-
-    // Âä†ËΩΩÊï∞ÊçÆ
+    // º”‘ÿ ˝æ›
     val ratingRDD = spark.read
       .option("uri", mongoConfig.uri)
       .option("collection", MONGODB_RATING_COLLECTION)
@@ -54,32 +54,32 @@ object OfflineRecommender {
       .load()
       .as[MovieRating]
       .rdd
-      .map( rating => ( rating.uid, rating.mid, rating.score ) )    // ËΩ¨ÂåñÊàêrddÔºåÂπ∂‰∏îÂéªÊéâÊó∂Èó¥Êà≥
+      .map(rating => (rating.uid, rating.mid, rating.score)) // ◊™ªØ≥…rdd£¨≤¢«“»•µÙ ±º‰¥¡
       .cache()
 
-    // ‰ªératingÊï∞ÊçÆ‰∏≠ÊèêÂèñÊâÄÊúâÁöÑuidÂíåmidÔºåÂπ∂ÂéªÈáç
+    // ¥”rating ˝æ›÷–Ã·»°À˘”–µƒuid∫Õmid£¨≤¢»•÷ÿ
     val userRDD = ratingRDD.map(_._1).distinct()
     val movieRDD = ratingRDD.map(_._2).distinct()
 
-    // ËÆ≠ÁªÉÈöêËØ≠‰πâÊ®°Âûã
-    val trainData = ratingRDD.map( x => Rating(x._1, x._2, x._3) )
+    // —µ¡∑“˛”Ô“Âƒ£–Õ
+    val trainData = ratingRDD.map(x => Rating(x._1, x._2, x._3))
 
     val (rank, iterations, lambda) = (200, 5, 0.1)
     val model = ALS.train(trainData, rank, iterations, lambda)
 
-    // Âü∫‰∫éÁî®Êà∑ÂíåÁîµÂΩ±ÁöÑÈöêÁâπÂæÅÔºåËÆ°ÁÆóÈ¢ÑÊµãËØÑÂàÜÔºåÂæóÂà∞Áî®Êà∑ÁöÑÊé®ËçêÂàóË°®
-    // ËÆ°ÁÆóuserÂíåmovieÁöÑÁ¨õÂç°Â∞îÁßØÔºåÂæóÂà∞‰∏Ä‰∏™Á©∫ËØÑÂàÜÁü©Èòµ
+    // ª˘”⁄”√ªß∫ÕµÁ”∞µƒ“˛Ãÿ’˜£¨º∆À„‘§≤‚∆¿∑÷£¨µ√µΩ”√ªßµƒÕ∆ºˆ¡–±Ì
+    // º∆À„user∫Õmovieµƒµ—ø®∂˚ª˝£¨µ√µΩ“ª∏ˆø’∆¿∑÷æÿ’Û
     val userMovies = userRDD.cartesian(movieRDD)
 
-    // Ë∞ÉÁî®modelÁöÑpredictÊñπÊ≥ïÈ¢ÑÊµãËØÑÂàÜ
+    // µ˜”√modelµƒpredict∑Ω∑®‘§≤‚∆¿∑÷
     val preRatings = model.predict(userMovies)
 
     val userRecs = preRatings
-      .filter(_.rating > 0)    // ËøáÊª§Âá∫ËØÑÂàÜÂ§ß‰∫é0ÁöÑÈ°π
-      .map(rating => ( rating.user, (rating.product, rating.rating) ) )
+      .filter(_.rating > 0) // π˝¬À≥ˆ∆¿∑÷¥Û”⁄0µƒœÓ
+      .map(rating => (rating.user, (rating.product, rating.rating)))
       .groupByKey()
-      .map{
-        case (uid, recs) => UserRecs( uid, recs.toList.sortWith(_._2>_._2).take(USER_MAX_RECOMMENDATION).map(x=>Recommendation(x._1, x._2)) )
+      .map {
+        case (uid, recs) => UserRecs(uid, recs.toList.sortWith(_._2 > _._2).take(USER_MAX_RECOMMENDATION).map(x => Recommendation(x._1, x._2)))
       }
       .toDF()
 
@@ -90,27 +90,27 @@ object OfflineRecommender {
       .format("com.mongodb.spark.sql")
       .save()
 
-    // Âü∫‰∫éÁîµÂΩ±ÈöêÁâπÂæÅÔºåËÆ°ÁÆóÁõ∏‰ººÂ∫¶Áü©ÈòµÔºåÂæóÂà∞ÁîµÂΩ±ÁöÑÁõ∏‰ººÂ∫¶ÂàóË°®
-    val movieFeatures = model.productFeatures.map{
+    // ª˘”⁄µÁ”∞“˛Ãÿ’˜£¨º∆À„œ‡À∆∂»æÿ’Û£¨µ√µΩµÁ”∞µƒœ‡À∆∂»¡–±Ì
+    val movieFeatures = model.productFeatures.map {
       case (mid, features) => (mid, new DoubleMatrix(features))
     }
 
-    // ÂØπÊâÄÊúâÁîµÂΩ±‰∏§‰∏§ËÆ°ÁÆóÂÆÉ‰ª¨ÁöÑÁõ∏‰ººÂ∫¶ÔºåÂÖàÂÅöÁ¨õÂç°Â∞îÁßØ
+    // ∂‘À˘”–µÁ”∞¡Ω¡Ωº∆À„À¸√«µƒœ‡À∆∂»£¨œ»◊ˆµ—ø®∂˚ª˝
     val movieRecs = movieFeatures.cartesian(movieFeatures)
-      .filter{
-        // ÊääËá™Â∑±Ë∑üËá™Â∑±ÁöÑÈÖçÂØπËøáÊª§Êéâ
+      .filter {
+        // ∞—◊‘º∫∏˙◊‘º∫µƒ≈‰∂‘π˝¬ÀµÙ
         case (a, b) => a._1 != b._1
       }
-      .map{
+      .map {
         case (a, b) => {
           val simScore = this.consinSim(a._2, b._2)
-          ( a._1, ( b._1, simScore ) )
+          (a._1, (b._1, simScore))
         }
       }
-      .filter(_._2._2 > 0.6)    // ËøáÊª§Âá∫Áõ∏‰ººÂ∫¶Â§ß‰∫é0.6ÁöÑ
+      .filter(_._2._2 > 0.6) // π˝¬À≥ˆœ‡À∆∂»¥Û”⁄0.6µƒ
       .groupByKey()
-      .map{
-        case (mid, items) => MovieRecs( mid, items.toList.sortWith(_._2 > _._2).map(x => Recommendation(x._1, x._2)) )
+      .map {
+        case (mid, items) => MovieRecs(mid, items.toList.sortWith(_._2 > _._2).map(x => Recommendation(x._1, x._2)))
       }
       .toDF()
     movieRecs.write
@@ -122,9 +122,8 @@ object OfflineRecommender {
     spark.stop()
   }
 
-  // Ê±ÇÂêëÈáè‰ΩôÂº¶Áõ∏‰ººÂ∫¶
-  def consinSim(movie1: DoubleMatrix, movie2: DoubleMatrix):Double ={
-    movie1.dot(movie2) / ( movie1.norm2() * movie2.norm2() )
+  // «ÛœÚ¡ø”‡œ“œ‡À∆∂»
+  def consinSim(movie1: DoubleMatrix, movie2: DoubleMatrix): Double = {
+    movie1.dot(movie2) / (movie1.norm2() * movie2.norm2())
   }
-
 }

@@ -5,7 +5,7 @@ import java.util.Date
 
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
-//----------------------------------------------------------------------------------------------------------------------
+
 case class Movie(mid: Int, name: String, descri: String, timelong: String, issue: String,
                  shoot: String, language: String, genres: String, actors: String, directors: String)
 
@@ -13,21 +13,20 @@ case class Rating(uid: Int, mid: Int, score: Double, timestamp: Int )
 
 case class MongoConfig(uri:String, db:String)
 
-// å®šä¹‰ä¸€ä¸ªåŸºå‡†æŽ¨èå¯¹è±¡
+// ¶¨ÒåÒ»¸ö»ù×¼ÍÆ¼ö¶ÔÏó
 case class Recommendation( mid: Int, score: Double )
 
-// å®šä¹‰ç”µå½±ç±»åˆ«top10æŽ¨èå¯¹è±¡
+// ¶¨ÒåµçÓ°Àà±ðtop10ÍÆ¼ö¶ÔÏó
 case class GenresRecommendation( genres: String, recs: Seq[Recommendation] )
 
-//----------------------------------------------------------------------------------------------------------------------
 
 object StatisticsRecommender {
 
-  // å®šä¹‰è¡¨å
+  // ¶¨Òå±íÃû   ¶ÁÈ¡µÄ±í
   val MONGODB_MOVIE_COLLECTION = "Movie"
   val MONGODB_RATING_COLLECTION = "Rating"
 
-  //ç»Ÿè®¡çš„è¡¨çš„åç§°
+  //Í³¼ÆµÄ±íµÄÃû³Æ  ²úÉúµÄÊý¾ÝµÄ±í
   val RATE_MORE_MOVIES = "RateMoreMovies"
   val RATE_MORE_RECENTLY_MOVIES = "RateMoreRecentlyMovies"
   val AVERAGE_MOVIES = "AverageMovies"
@@ -36,21 +35,21 @@ object StatisticsRecommender {
   def main(args: Array[String]): Unit = {
     val config = Map(
       "spark.cores" -> "local[*]",
-      "mongo.uri" -> "mongodb://localhost:27017/recommender",
+      "mongo.uri" -> "mongodb://192.168.25.131:27017/recommender",
       "mongo.db" -> "recommender"
     )
 
-    // åˆ›å»ºä¸€ä¸ªsparkConf
+    // ´´½¨Ò»¸ösparkConf
     val sparkConf = new SparkConf().setMaster(config("spark.cores")).setAppName("StatisticsRecommeder")
 
-    // åˆ›å»ºä¸€ä¸ªSparkSession
+    // ´´½¨Ò»¸öSparkSession
     val spark = SparkSession.builder().config(sparkConf).getOrCreate()
 
     import spark.implicits._
 
     implicit val mongoConfig = MongoConfig(config("mongo.uri"), config("mongo.db"))
 
-    // ä»ŽmongodbåŠ è½½æ•°æ®
+    // ´Ómongodb¼ÓÔØÊý¾Ý
     val ratingDF = spark.read
       .option("uri", mongoConfig.uri)
       .option("collection", MONGODB_RATING_COLLECTION)
@@ -67,50 +66,50 @@ object StatisticsRecommender {
       .as[Movie]
       .toDF()
 
-    // åˆ›å»ºåä¸ºratingsçš„ä¸´æ—¶è¡¨
+    // ´´½¨ÃûÎªratingsµÄÁÙÊ±±í
     ratingDF.createOrReplaceTempView("ratings")
 
-    // ä¸åŒçš„ç»Ÿè®¡æŽ¨èç»“æžœ
-    // 1. åŽ†å²çƒ­é—¨ç»Ÿè®¡ï¼ŒåŽ†å²è¯„åˆ†æ•°æ®æœ€å¤šï¼Œmidï¼Œcount
+    // ²»Í¬µÄÍ³¼ÆÍÆ¼ö½á¹û
+    // 1. ÀúÊ·ÈÈÃÅÍ³¼Æ£¬ÀúÊ·ÆÀ·ÖÊý¾Ý×î¶à£¬mid£¬count
     val rateMoreMoviesDF = spark.sql("select mid, count(mid) as count from ratings group by mid")
-    // æŠŠç»“æžœå†™å…¥å¯¹åº”çš„mongodbè¡¨ä¸­
+    // °Ñ½á¹ûÐ´Èë¶ÔÓ¦µÄmongodb±íÖÐ
     storeDFInMongoDB( rateMoreMoviesDF, RATE_MORE_MOVIES )
 
-    // 2. è¿‘æœŸçƒ­é—¨ç»Ÿè®¡ï¼ŒæŒ‰ç…§â€œyyyyMMâ€æ ¼å¼é€‰å–æœ€è¿‘çš„è¯„åˆ†æ•°æ®ï¼Œç»Ÿè®¡è¯„åˆ†ä¸ªæ•°
-    // åˆ›å»ºä¸€ä¸ªæ—¥æœŸæ ¼å¼åŒ–å·¥å…·
+    // 2. ½üÆÚÈÈÃÅÍ³¼Æ£¬°´ÕÕ¡°yyyyMM¡±¸ñÊ½Ñ¡È¡×î½üµÄÆÀ·ÖÊý¾Ý£¬Í³¼ÆÆÀ·Ö¸öÊý
+    // ´´½¨Ò»¸öÈÕÆÚ¸ñÊ½»¯¹¤¾ß
     val simpleDateFormat = new SimpleDateFormat("yyyyMM")
-    // æ³¨å†Œudfï¼ŒæŠŠæ—¶é—´æˆ³è½¬æ¢æˆå¹´æœˆæ ¼å¼
+    // ×¢²áudf£¬°ÑÊ±¼ä´Á×ª»»³ÉÄêÔÂ¸ñÊ½
     spark.udf.register("changeDate", (x: Int)=>simpleDateFormat.format(new Date(x * 1000L)).toInt )
 
-    // å¯¹åŽŸå§‹æ•°æ®åšé¢„å¤„ç†ï¼ŒåŽ»æŽ‰uid
+    // ¶ÔÔ­Ê¼Êý¾Ý×öÔ¤´¦Àí£¬È¥µôuid
     val ratingOfYearMonth = spark.sql("select mid, score, changeDate(timestamp) as yearmonth from ratings")
     ratingOfYearMonth.createOrReplaceTempView("ratingOfMonth")
 
-    // ä»ŽratingOfMonthä¸­æŸ¥æ‰¾ç”µå½±åœ¨å„ä¸ªæœˆä»½çš„è¯„åˆ†ï¼Œmidï¼Œcountï¼Œyearmonth
+    // ´ÓratingOfMonthÖÐ²éÕÒµçÓ°ÔÚ¸÷¸öÔÂ·ÝµÄÆÀ·Ö£¬mid£¬count£¬yearmonth
     val rateMoreRecentlyMoviesDF = spark.sql("select mid, count(mid) as count, yearmonth from ratingOfMonth group by yearmonth, mid order by yearmonth desc, count desc")
 
-    // å­˜å…¥mongodb
+    // ´æÈëmongodb
     storeDFInMongoDB(rateMoreRecentlyMoviesDF, RATE_MORE_RECENTLY_MOVIES)
 
-    // 3. ä¼˜è´¨ç”µå½±ç»Ÿè®¡ï¼Œç»Ÿè®¡ç”µå½±çš„å¹³å‡è¯„åˆ†ï¼Œmidï¼Œavg
+    // 3. ÓÅÖÊµçÓ°Í³¼Æ£¬Í³¼ÆµçÓ°µÄÆ½¾ùÆÀ·Ö£¬mid£¬avg
     val averageMoviesDF = spark.sql("select mid, avg(score) as avg from ratings group by mid")
     storeDFInMongoDB(averageMoviesDF, AVERAGE_MOVIES)
 
-    // 4. å„ç±»åˆ«ç”µå½±Topç»Ÿè®¡
-    // å®šä¹‰æ‰€æœ‰ç±»åˆ«
+    // 4. ¸÷Àà±ðµçÓ°TopÍ³¼Æ
+    // ¶¨ÒåËùÓÐÀà±ð
     val genres = List("Action","Adventure","Animation","Comedy","Crime","Documentary","Drama","Family","Fantasy","Foreign","History","Horror","Music","Mystery"
       ,"Romance","Science","Tv","Thriller","War","Western")
 
-    // æŠŠå¹³å‡è¯„åˆ†åŠ å…¥movieè¡¨é‡Œï¼ŒåŠ ä¸€åˆ—ï¼Œinner join
+    // °ÑÆ½¾ùÆÀ·Ö¼ÓÈëmovie±íÀï£¬¼ÓÒ»ÁÐ£¬inner join
     val movieWithScore = movieDF.join(averageMoviesDF, "mid")
 
-    // ä¸ºåšç¬›å¡å°”ç§¯ï¼ŒæŠŠgenresè½¬æˆrdd
+    // Îª×öµÑ¿¨¶û»ý£¬°Ñgenres×ª³Érdd
     val genresRDD = spark.sparkContext.makeRDD(genres)
 
-    // è®¡ç®—ç±»åˆ«top10ï¼Œé¦–å…ˆå¯¹ç±»åˆ«å’Œç”µå½±åšç¬›å¡å°”ç§¯
+    // ¼ÆËãÀà±ðtop10£¬Ê×ÏÈ¶ÔÀà±ðºÍµçÓ°×öµÑ¿¨¶û»ý
     val genresTopMoviesDF = genresRDD.cartesian(movieWithScore.rdd)
       .filter{
-        // æ¡ä»¶è¿‡æ»¤ï¼Œæ‰¾å‡ºmovieçš„å­—æ®µgenreså€¼(Action|Adventure|Sci-Fi)åŒ…å«å½“å‰ç±»åˆ«genre(Action)çš„é‚£äº›
+        // Ìõ¼þ¹ýÂË£¬ÕÒ³ömovieµÄ×Ö¶ÎgenresÖµ(Action|Adventure|Sci-Fi)°üº¬µ±Ç°Àà±ðgenre(Action)µÄÄÇÐ©
         case (genre, movieRow) => movieRow.getAs[String]("genres").toLowerCase.contains( genre.toLowerCase )
       }
       .map{
@@ -135,5 +134,4 @@ object StatisticsRecommender {
       .format("com.mongodb.spark.sql")
       .save()
   }
-
 }

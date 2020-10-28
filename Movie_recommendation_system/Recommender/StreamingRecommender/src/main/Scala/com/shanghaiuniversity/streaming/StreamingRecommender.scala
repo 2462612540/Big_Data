@@ -224,5 +224,4 @@ object StreamingRecommender {
     streamRecsCollection.insert(MongoDBObject("uid" -> uid,
       "recs" -> streamRecs.map(x => MongoDBObject("mid" -> x._1, "score" -> x._2))))
   }
-
 }

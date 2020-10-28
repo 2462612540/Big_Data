@@ -13,61 +13,61 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.transport.client.PreBuiltTransportClient
 
 //----------------------------------------------------------------------------------------------------------------------
-//æ ·ä¾‹ç±»çš„å®šä¹‰
+//ÑùÀıÀàµÄ¶¨Òå
 /**
-  * Movie æ•°æ®é›†
+  * Movie Êı¾İ¼¯
   *
-  * 260                                         ç”µå½±IDï¼Œmid
-  * Star Wars: Episode IV - A New Hope (1977)   ç”µå½±åç§°ï¼Œname
-  * Princess Leia is captured and held hostage  è¯¦æƒ…æè¿°ï¼Œdescri
-  * 121 minutes                                 æ—¶é•¿ï¼Œtimelong
-  * September 21, 2004                          å‘è¡Œæ—¶é—´ï¼Œissue
-  * 1977                                        æ‹æ‘„æ—¶é—´ï¼Œshoot
-  * English                                     è¯­è¨€ï¼Œlanguage
-  * Action|Adventure|Sci-Fi                     ç±»å‹ï¼Œgenres
-  * Mark Hamill|Harrison Ford|Carrie Fisher     æ¼”å‘˜è¡¨ï¼Œactors
-  * George Lucas                                å¯¼æ¼”ï¼Œdirectors
+  * 260                                         µçÓ°ID£¬mid
+  * Star Wars: Episode IV - A New Hope (1977)   µçÓ°Ãû³Æ£¬name
+  * Princess Leia is captured and held hostage  ÏêÇéÃèÊö£¬descri
+  * 121 minutes                                 Ê±³¤£¬timelong
+  * September 21, 2004                          ·¢ĞĞÊ±¼ä£¬issue
+  * 1977                                        ÅÄÉãÊ±¼ä£¬shoot
+  * English                                     ÓïÑÔ£¬language
+  * Action|Adventure|Sci-Fi                     ÀàĞÍ£¬genres
+  * Mark Hamill|Harrison Ford|Carrie Fisher     ÑİÔ±±í£¬actors
+  * George Lucas                                µ¼Ñİ£¬directors
   *
   */
 case class Movie(mid: Int, name: String, descri: String, timelong: String, issue: String,
                  shoot: String, language: String, genres: String, actors: String, directors: String)
 
 /**
-  * Ratingæ•°æ®é›†
+  * RatingÊı¾İ¼¯
   *
-  * 1,31,2.5,1260759144
+  * 1,31,2.5,1260759144  ÓÃ»§ID  µçÓ°ID  ·ÖÊı   Ê±¼ä´Á
   */
 case class Rating(uid: Int, mid: Int, score: Double, timestamp: Int)
 
 /**
-  * Tagæ•°æ®é›†
+  * TagÊı¾İ¼¯
   *
   * 15,1955,dentist,1193435061
   */
 case class Tag(uid: Int, mid: Int, tag: String, timestamp: Int)
 
 //----------------------------------------------------------------------------------------------------------------------
-// æŠŠmongoå’Œesçš„é…ç½®å°è£…æˆæ ·ä¾‹ç±»
+// °ÑmongoºÍesµÄÅäÖÃ·â×°³ÉÑùÀıÀà
 
 /**
   *
-  * @param uri MongoDBè¿æ¥
-  * @param db  MongoDBæ•°æ®åº“
+  * @param uri MongoDBÁ¬½Ó
+  * @param db  MongoDBÊı¾İ¿â
   */
 case class MongoConfig(uri: String, db: String)
 
 /**
   *
-  * @param httpHosts      httpä¸»æœºåˆ—è¡¨ï¼Œé€—å·åˆ†éš”
-  * @param transportHosts transportä¸»æœºåˆ—è¡¨
-  * @param index          éœ€è¦æ“ä½œçš„ç´¢å¼•
-  * @param clustername    é›†ç¾¤åç§°ï¼Œé»˜è®¤elasticsearch
+  * @param httpHosts      httpÖ÷»úÁĞ±í£¬¶ººÅ·Ö¸ô
+  * @param transportHosts transportÖ÷»úÁĞ±í
+  * @param index          ĞèÒª²Ù×÷µÄË÷Òı
+  * @param clustername    ¼¯ÈºÃû³Æ£¬Ä¬ÈÏelasticsearch
   */
 case class ESConfig(httpHosts: String, transportHosts: String, index: String, clustername: String)
 
 object DataLoader {
 
-  // å®šä¹‰å¸¸é‡
+  // ¶¨Òå³£Á¿
   val MOVIE_DATA_PATH = "E:\\GItHub_project\\Big_Data\\Movie_recommendation_system\\Recommender\\DataLoader\\src\\main\\resources\\movies.csv"
   val RATING_DATA_PATH = "E:\\GItHub_project\\Big_Data\\Movie_recommendation_system\\Recommender\\DataLoader\\src\\main\\resources\\ratings.csv"
   val TAG_DATA_PATH = "E:\\GItHub_project\\Big_Data\\Movie_recommendation_system\\Recommender\\DataLoader\\src\\main\\resources\\tags.csv"
@@ -78,28 +78,28 @@ object DataLoader {
   val ES_MOVIE_INDEX = "Movie"
 
 
-  //ä¸»å‡½æ•°çš„å…¥å£
+  //Ö÷º¯ÊıµÄÈë¿Ú
   def main(args: Array[String]): Unit = {
 
     val config = Map(
       "spark.cores" -> "local[*]",
-      "mongo.uri" -> "mongodb://localhost:27017/recommender",
+      "mongo.uri" -> "mongodb://192.168.25.131:27017/recommender",
       "mongo.db" -> "recommender",
-      "es.httpHosts" -> "localhost:9200",
-      "es.transportHosts" -> "localhost:9300",
+      "es.httpHosts" -> "192.168.25.131:9200",
+      "es.transportHosts" -> "192.168.25.131:9300",
       "es.index" -> "recommender",
       "es.cluster.name" -> "elasticsearch"
     )
 
-    // åˆ›å»ºä¸€ä¸ªsparkConf
+    // ´´½¨Ò»¸ösparkConf
     val sparkConf = new SparkConf().setMaster(config("spark.cores")).setAppName("DataLoader")
 
-    // åˆ›å»ºä¸€ä¸ªSparkSession
+    // ´´½¨Ò»¸öSparkSession
     val spark = SparkSession.builder().config(sparkConf).getOrCreate()
 
     import spark.implicits._
 
-    // åŠ è½½æ•°æ®
+    // ¼ÓÔØÊı¾İ
     val movieRDD = spark.sparkContext.textFile(MOVIE_DATA_PATH)
     val movieDF = movieRDD.map(
       item => {
@@ -122,10 +122,10 @@ object DataLoader {
 
     implicit val mongoConfig = MongoConfig(config("mongo.uri"), config("mongo.db"))
 
-    // å°†æ•°æ®ä¿å­˜åˆ°MongoDB
+    // ½«Êı¾İ±£´æµ½MongoDB
     storeDataInMongoDB(movieDF, ratingDF, tagDF)
 
-    // æ•°æ®é¢„å¤„ç†ï¼ŒæŠŠmovieå¯¹åº”çš„tagä¿¡æ¯æ·»åŠ è¿›å»ï¼ŒåŠ ä¸€åˆ— tag1|tag2|tag3...
+    // Êı¾İÔ¤´¦Àí£¬°Ñmovie¶ÔÓ¦µÄtagĞÅÏ¢Ìí¼Ó½øÈ¥£¬¼ÓÒ»ÁĞ tag1|tag2|tag3...
     import org.apache.spark.sql.functions._
 
     /**
@@ -137,28 +137,28 @@ object DataLoader {
       .agg(concat_ws("|", collect_set($"tag")).as("tags"))
       .select("mid", "tags")
 
-    // newTagå’Œmovieåšjoinï¼Œæ•°æ®åˆå¹¶åœ¨ä¸€èµ·ï¼Œå·¦å¤–è¿æ¥
+    // newTagºÍmovie×öjoin£¬Êı¾İºÏ²¢ÔÚÒ»Æğ£¬×óÍâÁ¬½Ó
     val movieWithTagsDF = movieDF.join(newTag, Seq("mid"), "left")
 
     implicit val esConfig = ESConfig(config("es.httpHosts"), config("es.transportHosts"), config("es.index"), config("es.cluster.name"))
 
-    // ä¿å­˜æ•°æ®åˆ°ES
+    // ±£´æÊı¾İµ½ES
     storeDataInES(movieWithTagsDF)
 
     spark.stop()
   }
 
-  //å­˜å‚¨æ•°æ®çš„MOngoDBä¸­
+  //´æ´¢Êı¾İµÄMOngoDBÖĞ
   def storeDataInMongoDB(movieDF: DataFrame, ratingDF: DataFrame, tagDF: DataFrame)(implicit mongoConfig: MongoConfig): Unit = {
-    // æ–°å»ºä¸€ä¸ªmongodbçš„è¿æ¥
+    // ĞÂ½¨Ò»¸ömongodbµÄÁ¬½Ó
     val mongoClient = MongoClient(MongoClientURI(mongoConfig.uri))
 
-    // å¦‚æœmongodbä¸­å·²ç»æœ‰ç›¸åº”çš„æ•°æ®åº“ï¼Œå…ˆåˆ é™¤
+    // Èç¹ûmongodbÖĞÒÑ¾­ÓĞÏàÓ¦µÄÊı¾İ¿â£¬ÏÈÉ¾³ı
     mongoClient(mongoConfig.db)(MONGODB_MOVIE_COLLECTION).dropCollection()
     mongoClient(mongoConfig.db)(MONGODB_RATING_COLLECTION).dropCollection()
     mongoClient(mongoConfig.db)(MONGODB_TAG_COLLECTION).dropCollection()
 
-    // å°†DFæ•°æ®å†™å…¥å¯¹åº”çš„mongodbè¡¨ä¸­
+    // ½«DFÊı¾İĞ´Èë¶ÔÓ¦µÄmongodb±íÖĞ
     movieDF.write
       .option("uri", mongoConfig.uri)
       .option("collection", MONGODB_MOVIE_COLLECTION)
@@ -180,22 +180,22 @@ object DataLoader {
       .format("com.mongodb.spark.sql")
       .save()
 
-    //å¯¹æ•°æ®è¡¨å»ºç´¢å¼•
+    //¶ÔÊı¾İ±í½¨Ë÷Òı
     mongoClient(mongoConfig.db)(MONGODB_MOVIE_COLLECTION).createIndex(MongoDBObject("mid" -> 1))
     mongoClient(mongoConfig.db)(MONGODB_RATING_COLLECTION).createIndex(MongoDBObject("uid" -> 1))
     mongoClient(mongoConfig.db)(MONGODB_RATING_COLLECTION).createIndex(MongoDBObject("mid" -> 1))
     mongoClient(mongoConfig.db)(MONGODB_TAG_COLLECTION).createIndex(MongoDBObject("uid" -> 1))
     mongoClient(mongoConfig.db)(MONGODB_TAG_COLLECTION).createIndex(MongoDBObject("mid" -> 1))
-    //å…³é—­è¿æ¥
+    //¹Ø±ÕÁ¬½Ó
     mongoClient.close()
   }
 
-  //å­˜å‚¨æ•°æ®çš„ElasticSerachä¸­
+  //´æ´¢Êı¾İµÄElasticSerachÖĞ
   def storeDataInES(movieDF: DataFrame)(implicit eSConfig: ESConfig): Unit = {
-    // æ–°å»ºesé…ç½®
+    // ĞÂ½¨esÅäÖÃ
     val settings: Settings = Settings.builder().put("cluster.name", eSConfig.clustername).build()
 
-    // æ–°å»ºä¸€ä¸ªeså®¢æˆ·ç«¯
+    // ĞÂ½¨Ò»¸öes¿Í»§¶Ë
     val esClient = new PreBuiltTransportClient(settings)
 
     val REGEX_HOST_PORT = "(.+):(\\d+)".r
@@ -205,7 +205,7 @@ object DataLoader {
       }
     }
 
-    // å…ˆæ¸…ç†é—ç•™çš„æ•°æ®
+    // ÏÈÇåÀíÒÅÁôµÄÊı¾İ
     if (esClient.admin().indices().exists(new IndicesExistsRequest(eSConfig.index))
       .actionGet()
       .isExists
@@ -223,6 +223,5 @@ object DataLoader {
       .format("org.elasticsearch.spark.sql")
       .save(eSConfig.index + "/" + ES_MOVIE_INDEX)
   }
-
 }
 
