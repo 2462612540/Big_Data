@@ -6,21 +6,21 @@ import org.apache.spark.ml.linalg.SparseVector
 import org.apache.spark.sql.SparkSession
 import org.jblas.DoubleMatrix
 
-// éœ€è¦çš„æ•°æ®æºæ˜¯ç”µå½±å†…å®¹ä¿¡æ¯
+// ĞèÒªµÄÊı¾İÔ´ÊÇµçÓ°ÄÚÈİĞÅÏ¢
 case class Movie(mid: Int, name: String, descri: String, timelong: String, issue: String,
                  shoot: String, language: String, genres: String, actors: String, directors: String)
 
 case class MongoConfig(uri: String, db: String)
 
-// å®šä¹‰ä¸€ä¸ªåŸºå‡†æ¨èå¯¹è±¡
+// ¶¨ÒåÒ»¸ö»ù×¼ÍÆ¼ö¶ÔÏó
 case class Recommendation(mid: Int, score: Double)
 
-// å®šä¹‰ç”µå½±å†…å®¹ä¿¡æ¯æå–å‡ºçš„ç‰¹å¾å‘é‡çš„ç”µå½±ç›¸ä¼¼åº¦åˆ—è¡¨
+// ¶¨ÒåµçÓ°ÄÚÈİĞÅÏ¢ÌáÈ¡³öµÄÌØÕ÷ÏòÁ¿µÄµçÓ°ÏàËÆ¶ÈÁĞ±í
 case class MovieRecs(mid: Int, recs: Seq[Recommendation])
 
 object ContentRecommender {
 
-  // å®šä¹‰è¡¨åå’Œå¸¸é‡
+  // ¶¨Òå±íÃûºÍ³£Á¿
   val MONGODB_MOVIE_COLLECTION = "Movie"
 
   val CONTENT_MOVIE_RECS = "ContentMovieRecs"
@@ -34,14 +34,14 @@ object ContentRecommender {
 
     val sparkConf = new SparkConf().setMaster(config("spark.cores")).setAppName("OfflineRecommender")
 
-    // åˆ›å»ºä¸€ä¸ªSparkSession
+    // ´´½¨Ò»¸öSparkSession
     val spark = SparkSession.builder().config(sparkConf).getOrCreate()
 
     import spark.implicits._
 
     implicit val mongoConfig = MongoConfig(config("mongo.uri"), config("mongo.db"))
 
-    // åŠ è½½æ•°æ®ï¼Œå¹¶ä½œé¢„å¤„ç†
+    // ¼ÓÔØÊı¾İ£¬²¢×÷Ô¤´¦Àí
     val movieTagsDF = spark.read
       .option("uri", mongoConfig.uri)
       .option("collection", MONGODB_MOVIE_COLLECTION)
@@ -49,29 +49,29 @@ object ContentRecommender {
       .load()
       .as[Movie]
       .map(
-        // æå–midï¼Œnameï¼Œgenresä¸‰é¡¹ä½œä¸ºåŸå§‹å†…å®¹ç‰¹å¾ï¼Œåˆ†è¯å™¨é»˜è®¤æŒ‰ç…§ç©ºæ ¼åšåˆ†è¯
+        // ÌáÈ¡mid£¬name£¬genresÈıÏî×÷ÎªÔ­Ê¼ÄÚÈİÌØÕ÷£¬·Ö´ÊÆ÷Ä¬ÈÏ°´ÕÕ¿Õ¸ñ×ö·Ö´Ê
         x => (x.mid, x.name, x.genres.map(c => if (c == '|') ' ' else c))
       )
       .toDF("mid", "name", "genres")
       .cache()
 
-    // æ ¸å¿ƒéƒ¨åˆ†ï¼š ç”¨TF-IDFä»å†…å®¹ä¿¡æ¯ä¸­æå–ç”µå½±ç‰¹å¾å‘é‡
+    // ºËĞÄ²¿·Ö£º ÓÃTF-IDF´ÓÄÚÈİĞÅÏ¢ÖĞÌáÈ¡µçÓ°ÌØÕ÷ÏòÁ¿
 
-    // åˆ›å»ºä¸€ä¸ªåˆ†è¯å™¨ï¼Œé»˜è®¤æŒ‰ç©ºæ ¼åˆ†è¯
+    // ´´½¨Ò»¸ö·Ö´ÊÆ÷£¬Ä¬ÈÏ°´¿Õ¸ñ·Ö´Ê
     val tokenizer = new Tokenizer().setInputCol("genres").setOutputCol("words")
 
-    // ç”¨åˆ†è¯å™¨å¯¹åŸå§‹æ•°æ®åšè½¬æ¢ï¼Œç”Ÿæˆæ–°çš„ä¸€åˆ—words
+    // ÓÃ·Ö´ÊÆ÷¶ÔÔ­Ê¼Êı¾İ×ö×ª»»£¬Éú³ÉĞÂµÄÒ»ÁĞwords
     val wordsData = tokenizer.transform(movieTagsDF)
 
-    // å¼•å…¥HashingTFå·¥å…·ï¼Œå¯ä»¥æŠŠä¸€ä¸ªè¯è¯­åºåˆ—è½¬åŒ–æˆå¯¹åº”çš„è¯é¢‘
+    // ÒıÈëHashingTF¹¤¾ß£¬¿ÉÒÔ°ÑÒ»¸ö´ÊÓïĞòÁĞ×ª»¯³É¶ÔÓ¦µÄ´ÊÆµ
     val hashingTF = new HashingTF().setInputCol("words").setOutputCol("rawFeatures").setNumFeatures(50)
     val featurizedData = hashingTF.transform(wordsData)
 
-    // å¼•å…¥IDFå·¥å…·ï¼Œå¯ä»¥å¾—åˆ°idfæ¨¡å‹
+    // ÒıÈëIDF¹¤¾ß£¬¿ÉÒÔµÃµ½idfÄ£ĞÍ
     val idf = new IDF().setInputCol("rawFeatures").setOutputCol("features")
-    // è®­ç»ƒidfæ¨¡å‹ï¼Œå¾—åˆ°æ¯ä¸ªè¯çš„é€†æ–‡æ¡£é¢‘ç‡
+    // ÑµÁ·idfÄ£ĞÍ£¬µÃµ½Ã¿¸ö´ÊµÄÄæÎÄµµÆµÂÊ
     val idfModel = idf.fit(featurizedData)
-    // ç”¨æ¨¡å‹å¯¹åŸæ•°æ®è¿›è¡Œå¤„ç†ï¼Œå¾—åˆ°æ–‡æ¡£ä¸­æ¯ä¸ªè¯çš„tf-idfï¼Œä½œä¸ºæ–°çš„ç‰¹å¾å‘é‡
+    // ÓÃÄ£ĞÍ¶ÔÔ­Êı¾İ½øĞĞ´¦Àí£¬µÃµ½ÎÄµµÖĞÃ¿¸ö´ÊµÄtf-idf£¬×÷ÎªĞÂµÄÌØÕ÷ÏòÁ¿
     val rescaledData = idfModel.transform(featurizedData)
 
     //    rescaledData.show(truncate = false)
@@ -85,10 +85,10 @@ object ContentRecommender {
       )
     movieFeatures.collect().foreach(println)
 
-    // å¯¹æ‰€æœ‰ç”µå½±ä¸¤ä¸¤è®¡ç®—å®ƒä»¬çš„ç›¸ä¼¼åº¦ï¼Œå…ˆåšç¬›å¡å°”ç§¯
+    // ¶ÔËùÓĞµçÓ°Á½Á½¼ÆËãËüÃÇµÄÏàËÆ¶È£¬ÏÈ×öµÑ¿¨¶û»ı
     val movieRecs = movieFeatures.cartesian(movieFeatures)
       .filter {
-        // æŠŠè‡ªå·±è·Ÿè‡ªå·±çš„é…å¯¹è¿‡æ»¤æ‰
+        // °Ñ×Ô¼º¸ú×Ô¼ºµÄÅä¶Ô¹ıÂËµô
         case (a, b) => a._1 != b._1
       }
       .map {
@@ -97,7 +97,7 @@ object ContentRecommender {
           (a._1, (b._1, simScore))
         }
       }
-      .filter(_._2._2 > 0.6) // è¿‡æ»¤å‡ºç›¸ä¼¼åº¦å¤§äº0.6çš„
+      .filter(_._2._2 > 0.6) // ¹ıÂË³öÏàËÆ¶È´óÓÚ0.6µÄ
       .groupByKey()
       .map {
         case (mid, items) => MovieRecs(mid, items.toList.sortWith(_._2 > _._2).map(x => Recommendation(x._1, x._2)))
@@ -113,7 +113,7 @@ object ContentRecommender {
     spark.stop()
   }
 
-  // æ±‚å‘é‡ä½™å¼¦ç›¸ä¼¼åº¦
+  // ÇóÏòÁ¿ÓàÏÒÏàËÆ¶È
   def consinSim(movie1: DoubleMatrix, movie2: DoubleMatrix): Double = {
     movie1.dot(movie2) / (movie1.norm2() * movie2.norm2())
   }
