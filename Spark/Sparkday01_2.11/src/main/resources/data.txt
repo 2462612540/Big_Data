@@ -1,0 +1,3 @@
+java python javac python C C++
+hadoop java spark 
+shell zookeeper linux 

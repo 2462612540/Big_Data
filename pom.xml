@@ -19,7 +19,6 @@
         <module>Flink</module>
         <module>zookeeper</module>
         <module>Hive</module>
-        <module>HBase</module>
         <module>Azkaban</module>
         <module>Flume</module>
         <module>Oozie</module>
@@ -27,6 +26,7 @@
         <module>Sqoop</module>
         <module>ElasticSearch</module>
         <module>Linux</module>
+        <module>HBase</module>
     </modules>
 
 
