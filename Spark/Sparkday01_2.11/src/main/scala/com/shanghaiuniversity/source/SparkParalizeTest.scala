@@ -1,11 +1,8 @@
-package com.shanghaiuniversity
+package com.shanghaiuniversity.source
 
 import org.apache.spark.{SparkConf, SparkContext}
 
-/**
- * spark 采用并行化的方式构建scala集合seq中的数据的为RDD
- */
-package object SparkParalizeTest {
+object SparkParalizeTest {
   def main(args: Array[String]): Unit = {
     //构建一个spark Content 对象
     val sc: SparkContext = {
@@ -19,7 +16,7 @@ package object SparkParalizeTest {
       context
     }
 
-    //TODO :创建一个本地的集合 穿件RDD
+    //TODO :创建一个本地的集合 创建RDD
     val seq: Seq[Int] = Seq(1, 2, 3, 4, 5, 6, 7, 8)
 
     /**
@@ -29,7 +26,17 @@ package object SparkParalizeTest {
      * ): RDD[T]
      */
     val inputRDD = sc.parallelize(seq, numSlices = 2)
-    inputRDD.foreach(item => print(item))
+
+    //TODO：读取外部的文件的数据的例如HDFS MOngoDB ……
+    /**
+    def textFile(
+       path: string,
+       minPartitions: Int =defaultMinPartitions
+    ): RDD[String]
+    */
+    val intputpath = ""
+    sc.textFile(intputpath, minPartitions = 2)
+    inputRDD.foreach(item => println(item))
 
     //关闭的spark
     sc.stop()

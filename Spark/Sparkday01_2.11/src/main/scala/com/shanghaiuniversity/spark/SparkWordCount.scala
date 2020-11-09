@@ -30,7 +30,7 @@ object SparkWordCount {
       //按照单词的word 分组 在进行组内的聚合
       .reduceByKey((tmp, item) => tmp + item)
     //TODO ：第三步：保存数据 将最后的RDD结果数据保存在外部的存储系统中
-    resultRDD.foreach(tuple => print(tuple));
+    resultRDD.foreach(tuple => println(tuple));
     resultRDD.saveAsTextFile(outputpath)
     Thread.sleep(1000000000);
     sc.stop();

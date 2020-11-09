@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-service</artifactId>
-            <version>0.13.1</version>
+            <version>2.3.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flume</groupId>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.8.2</version>
+            <version>2.13.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
