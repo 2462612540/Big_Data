@@ -6,23 +6,22 @@ package scala_base
  * 3.当我们编写一个object HelloScala底层会生成两个.class文件分别是HelloScala和HelloScala$
  * 4. scala在运行时，的流程如下
  * (1)先从HelloScala 的main开始执行
- * public static void main(StringD paramArrayOfString)
- * {
+ * public static void main(StringD paramArrayOfString){
  * HelloScala$.MODULE$.main(paramArrayOfString);
  * }
  * (2)然后调用HelloScala$类的方法HelloScala$ .MODULE$.main
  * (3) 即执行了下面的代码
- * //public void main(String[ args)
- * {
- *    PredefMODUL E$ printn"hello,scala!~~");
+ * public void main(String[ args){
+ * PredefMODUL E$ printn"hello,scala!~~");
  * }
  * object HelloScala {
- * //1. def表示是- -个方法，这是一个关键字
- * //2. main表示方法名字，表示程序入口
- * //3. args: Array[String]表示形参，scala 的特点是讲参数名在前，类型后
- * //4. Array[String]表示类型数组
- * //5.:Unit=表示该函数的返回值为空(void)
- * //6. printn("hello,scala!~")输出一句话
+ * 1. def表示是- -个方法，这是一个关键字
+ * 2. main表示方法名字，表示程序入口
+ * 3. args: Array[String]表示形参，scala 的特点是讲参数名在前，类型后
+ * 4. Array[String]表示类型数组
+ * 5.:Unit=表示该函数的返回值为空(void)
+ * 6. printn("hello,scala!~")输出一句话
+ * }
  */
 object HelloScala {
   def main(args: Array[String]): Unit = {
