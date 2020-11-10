@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>Sparkday01_2.11</module>
+        <module>Sparkday02_2.11</module>
     </modules>
 
     <properties>
