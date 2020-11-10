@@ -11,10 +11,6 @@
 
     <artifactId>Scala</artifactId>
     <dependencies>
-        <dependency>
-            <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-parser-combinators_2.11</artifactId>
-            <version>1.0.4</version>
-        </dependency>
+
     </dependencies>
 </project>

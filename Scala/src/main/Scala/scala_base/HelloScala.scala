@@ -26,7 +26,7 @@ package scala_base
  */
 object HelloScala {
   def main(args: Array[String]): Unit = {
-    printf("Hello word scalaF")
+    printf("Hello word scala ")
   }
 
   def test(): Unit = {
