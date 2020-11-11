@@ -42,7 +42,6 @@ object Clerk {
 class Person {
   //这里我们增加一个包访问权限
   //下面private[visit] ： 1，仍然是private 2. 在visit包(包括子包)下也可以使用name ,相当于扩大访问范围
-
   protected[visit] val name = "jack"
 }
 

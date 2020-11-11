@@ -21,11 +21,8 @@ object ScalaInnerClassDemo {
     inner1.test(inner2)
     inner2.test(inner2)
 
-
     //创建静态内部类实例
     val staticInner = new ScalaOuterClass.ScalaStaticInnerClass()
-
-
   }
 }
 
@@ -74,14 +71,11 @@ class ScalaOuterClass {
     def test(ic: ScalaOuterClass#ScalaInnerClass): Unit = {
       System.out.println("使用了类型投影" + ic)
     }
-
   }
-
 }
 
 
 object ScalaOuterClass { //伴生对象
   class ScalaStaticInnerClass { //静态内部类
   }
-
 }
