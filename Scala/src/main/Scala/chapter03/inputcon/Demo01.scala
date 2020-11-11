@@ -2,9 +2,10 @@ package chapter03.inputcon
 
 import scala.io.StdIn
 
+/**
+ * 相当于是的scanner.read()
+ */
 object Demo01 {
-
-
   def main(args: Array[String]): Unit = {
     /*
     要求：可以从控制台接收用户信息，【姓名，年龄，薪水】
@@ -16,13 +17,10 @@ object Demo01 {
     println("请输入薪水")
     val sal = StdIn.readDouble()
     printf("用户的信息为 name=%s age=%d sal=%.2f", name, age, sal)
-
-
-    //Cat.sayHi()
-    //Cat.sayHello()
-    //Cat.sayHi()
+    Cat.sayHi() //也是采用是一种的是调用的方式
+    Cat.sayHello()
+    Cat.sayHi()
     hi()
-
   }
 
   //定义方法
@@ -39,7 +37,8 @@ object Cat extends AAA {
   }
 }
 
-trait AAA { //AAA是特质，等价于java中的interface + abstract class
+//AAA是特质，等价于java中的interface + abstract class
+trait AAA {
   def sayHello(): Unit = {
     println("AAA sayHello")
   }

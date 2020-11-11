@@ -1,5 +1,7 @@
 package chapter17.abstractfactory.pizzastore.order
 
+import chapter17.abstractfactory.pizzastore.pizza.Pizza
+
 import scala.io.StdIn
 import scala.util.control.Breaks._
 

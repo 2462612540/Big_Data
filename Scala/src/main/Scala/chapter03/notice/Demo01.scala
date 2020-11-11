@@ -1,5 +1,9 @@
 package chapter03.notice
 
+/**
+ * Scala不支持三目运算符 , 在Scala 中使用 if – else 的方式实现。
+ *
+ */
 object Demo01 {
   def main(args: Array[String]): Unit = {
 

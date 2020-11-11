@@ -1,5 +1,8 @@
 package chapter17.decorator.coffeebar
 
+import chapter17.decorator.coffeebar.mycoffee.{DeCaf, LongBlack}
+import chapter17.decorator.coffeebar.mydecorator.{Chocolate, Milk, NewMilk}
+
 
 object CoffeeBar {
   def main(args: Array[String]): Unit = {

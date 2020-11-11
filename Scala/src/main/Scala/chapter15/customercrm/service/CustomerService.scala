@@ -1,5 +1,7 @@
 package chapter15.customercrm.service
 
+import chapter15.customercrm.bean.Customer
+
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.Breaks._
 

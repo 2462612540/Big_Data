@@ -7,7 +7,6 @@ object string2basic {
     val s1 = d1 + "" //以后看到有下划线，就表示编译器做了转换
 
     //String类型转基本数据类型
-
     val s2 = "12"
     val num1 = s2.toInt
     val num2 = s2.toByte
@@ -25,5 +24,8 @@ object string2basic {
     val s4 = "12.5"
     println(s4.toInt) // error
     println(s4.toDouble) //  ok
+
+    var num: Int = 2.7.toInt
+    //Byte和Short类型在进行运算时，当做Int类型处理。
   }
 }

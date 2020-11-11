@@ -5,7 +5,6 @@ object usefor2 {
     for (i <- 1 to 3; j = i * 2) {
       println(" i= " + i + " j= " + j)
     }
-
     //等价
     println("------------------------")
     for {
@@ -13,7 +12,5 @@ object usefor2 {
       j = i * 2} {
       println(" i= " + i + " j= " + j)
     }
-
-
   }
 }

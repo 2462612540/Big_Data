@@ -8,7 +8,6 @@ object yieldFor {
     //3. i 这里是一个代码块，这就意味我们可以对i进行处理
     //4. 下面的这个方式，就体现出scala一个重要的语法特点，就是将一个集合中个各个数据
     //    进行处理，并返回给新的集合
-
     val res = for (i <- 1 to 10) yield {
       if (i % 2 == 0) {
         i
@@ -17,6 +16,5 @@ object yieldFor {
       }
     }
     println(res)
-
   }
 }

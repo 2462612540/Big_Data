@@ -9,5 +9,4 @@ object ThrowsComment {
   def f11() = {
     "abc".toInt
   }
-
 }

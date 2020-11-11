@@ -5,6 +5,5 @@ object ForVar {
     for (i <- 1 to 3; j = 4 - i) {
       print(j + " ") // 3,2,1
     }
-
   }
 }

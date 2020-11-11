@@ -35,9 +35,7 @@ object WhileBreak {
         }
       }
     }
-
     println("ok~~")
-
     //注意break函数，可以使用在for或者do..while
     breakable {
       for (i <- 1 to 100) {
@@ -47,8 +45,6 @@ object WhileBreak {
         }
       }
     }
-
     println("ok2~~~~")
-
   }
 }

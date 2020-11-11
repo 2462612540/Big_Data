@@ -14,7 +14,21 @@ object BeanPropertDemo {
   }
 }
 
-
 class Car {
   @BeanProperty var name: String = null
 }
+
+class Person {
+  var age: Int = 90
+  var name: String = _
+  var p = new Person()
+
+  def this(n: String, a: Int) {
+    this()
+    this.name = n
+    this.age = a
+  }
+}
+
+
+

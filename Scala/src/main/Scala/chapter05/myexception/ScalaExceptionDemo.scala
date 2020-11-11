@@ -19,8 +19,6 @@ object ScalaExceptionDemo {
       // 最终要执行的代码
       println("scala finally...")
     }
-
     println("ok,继续执行~~~~~")
-
   }
 }

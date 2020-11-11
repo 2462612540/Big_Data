@@ -2,7 +2,6 @@ package chapter05.myexception;
 
 public class JavaExceptionDemo01 {
     public static void main(String[] args) {
-
         try {
             // 可疑代码
             int i = 0;
@@ -16,7 +15,6 @@ public class JavaExceptionDemo01 {
             // 最终要执行的代码
             System.out.println("java finally");
         }
-
         System.out.println("ok~~~继续执行...");
     }
 }

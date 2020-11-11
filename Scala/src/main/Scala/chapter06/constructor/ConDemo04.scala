@@ -17,7 +17,6 @@ object ConDemo04 {
 }
 
 //1. 如果 主构造器是Worker(inName: String) ，那么  inName就是一个局部变量
-
 class Worker(inName: String) {
   var name = inName
 }

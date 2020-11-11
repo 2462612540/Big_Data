@@ -27,6 +27,5 @@ object Demo01 {
     //num-- 错误
     num1 -= 1 // 替代 num1--
     println(num1)
-
   }
 }

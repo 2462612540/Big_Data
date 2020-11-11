@@ -1,5 +1,8 @@
 package chapter15.customercrm.view
 
+import chapter15.customercrm.bean.Customer
+import chapter15.customercrm.service.CustomerService
+
 import scala.io.StdIn
 import scala.util.control.Breaks._
 

@@ -11,16 +11,12 @@ object ForDemo01 {
     //3. end 循环结束的值
     //4. start to end 表示前后闭合
     for (i <- start to end) {
-
       println("你好，尚硅谷" + i)
     }
-
     //说明for 这种推导时，也可以直接对集合进行遍历
     var list = List("hello", 10, 30, "tom")
     for (item <- list) {
       println("item=" + item)
     }
-
-
   }
 }

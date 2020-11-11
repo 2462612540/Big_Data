@@ -13,7 +13,6 @@ object TypeDemo02 {
   //即当我们Nothing做返回值，就是明确说明该方法没有没有正常返回值
   def sayHello: Nothing = {
     throw new Exception("抛出异常")
-
   }
 }
 

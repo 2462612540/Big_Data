@@ -4,14 +4,14 @@ import scala.io.StdIn
 
 object ifelsesDemo03 {
   def main(args: Array[String]): Unit = {
-    /*
-    岳小鹏参加scala考试，他和父亲岳不群达成承诺：
-如果：
-成绩为100分时，奖励一辆BMW；
-成绩为(80，99]时，奖励一台iphone7plus；
-当成绩为[60,80]时，奖励一个 iPad；
-其它时，什么奖励也没有。
-  成绩是从控制台输入
+    /**
+     * 岳小鹏参加scala考试，他和父亲岳不群达成承诺：
+     * 如果：
+     * 成绩为100分时，奖励一辆BMW；
+     * 成绩为(80，99]时，奖励一台iphone7plus；
+     * 当成绩为[60,80]时，奖励一个 iPad；
+     * 其它时，什么奖励也没有。
+     * 成绩是从控制台输入
      */
     println("请输入成绩")
     val score = StdIn.readDouble()
@@ -24,7 +24,5 @@ object ifelsesDemo03 {
     } else {
       println("没有任何奖励")
     }
-
-
   }
 }
