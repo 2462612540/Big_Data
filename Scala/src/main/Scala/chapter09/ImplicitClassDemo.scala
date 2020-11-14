@@ -13,7 +13,6 @@ object ImplicitClassDemo {
       }
     }
 
-
     //创建一个MySQL1实例
     val mySQL = new MySQL1
     mySQL.sayOk()
@@ -22,13 +21,10 @@ object ImplicitClassDemo {
     implicit def f1(d: Double): Int = {
       d.toInt
     }
-
     def test1(n1: Int): Unit = {
       println("ok")
     }
-
     test1(10.1)
-
   }
 }
 

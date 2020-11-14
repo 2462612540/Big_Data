@@ -2,7 +2,6 @@ package chapter09
 
 object ImplicitDemo02 {
 
-
   def main(args: Array[String]): Unit = {
 
     //编写一个隐式函数，丰富mySQL功能

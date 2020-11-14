@@ -18,7 +18,6 @@ object ImplicitDemo01 {
     //      f1.toInt
     //    }
 
-
     val num: Int = 3.5 // 底层编译 f1$1(3.5)
     val num2: Int = 4.5f //
     println("num =" + num)
