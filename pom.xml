@@ -22,7 +22,6 @@
         <module>Azkaban</module>
         <module>Flume</module>
         <module>Oozie</module>
-        <module>Hadoop</module>
         <module>Sqoop</module>
         <module>ElasticSearch</module>
         <module>Linux</module>
